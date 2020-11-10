@@ -13,7 +13,7 @@ function generateRandomString(length) {
   }
   return result;
 };
-generateRandomString(6);
+//generateRandomString(6);
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -54,7 +54,8 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  //res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  res.send(generateRandomString(6));
 });
 
 app.listen(PORT, () => {
