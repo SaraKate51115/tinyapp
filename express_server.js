@@ -13,8 +13,7 @@ function generateRandomString(length) {
   }
   return result;
 };
-//generateRandomString(6);
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
@@ -24,16 +23,35 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL
+  const longURL = urlDatabase[shortURL]
+  //console.log(req.params)
+  //console.log(req.params.shortURL)
+  //console.log(urlDatabase[shortURL])
+  res.redirect(longURL);
+});
+//
+app.post("/urls", (req, res) => {
+  const newShortURL = generateRandomString(6);
+  //console.log(newShortURL); //random short URL generated
+  const newLongURL = req.body.longURL;
+  //console.log(newLongURL) //longURL input from browser
+  urlDatabase[newShortURL] = newLongURL; //set input url to new shortURL key in database
+  console.log(urlDatabase);
+  //res.send("Ok");  //=> tell browser to go to new page
+  res.redirect(`/urls/${newShortURL}`);
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
+
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+app.get("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL
+  const templateVars = {shortURL, longURL: urlDatabase[shortURL]}; //chnageged to new
+  res.render("urls_show", templateVars);
 });
 
 //pass the url data to our template
@@ -42,21 +60,38 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.get("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL
-  const templateVars = {shortURL, longURL: urlDatabase[shortURL]};
-  res.render("urls_show", templateVars);
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
 });
 
-app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  //res.send("Ok");         // Respond with 'Ok' (we will replace this)
-  res.send(generateRandomString(6));
+app.get("/", (req, res) => {
+  res.send("Hello!");
 });
+
+// app.get("/urls.json", (req, res) => {
+//   res.json(urlDatabase);
+// });
+
+// app.get("/hello", (req, res) => {
+//   res.send("<html><body>Hello <b>World</b></body></html>\n");
+// });
+
+
+
+// app.post("/urls", (req, res) => {
+//   const newShortURL = generateRandomString(6);
+//   //console.log(newShortURL); //random short URL generated
+//   const newLongURL = req.body.longURL;
+//   //console.log(newLongURL) //longURL input from browser
+//   urlDatabase[generateRandomString(6)] = newLongURL; //set input url to new shortURL key in database
+//   console.log(urlDatabase);
+//   //res.send("Ok");  //=> tell browser to go to new page
+//   res.redirect("/urls/:newShortURL");
+// });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
