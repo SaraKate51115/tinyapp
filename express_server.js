@@ -4,7 +4,7 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 
 //implementing function to simulate generating a "unique" shortURL
-function generateRandomString(length) {
+const generateRandomString = function (length) {
   const chars =  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const charsLength = chars.length
   let result = '';
@@ -13,7 +13,7 @@ function generateRandomString(length) {
   }
   return result;
 };
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
@@ -23,12 +23,22 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+const deleteURL = (url) => {
+  delete urlDatabase[url];
+};
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  console.log("request to delete: ", req.params.shortURL)
+  deleteURL(req.params.shortURL);
+  res.redirect("/urls");
+});
+
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   const longURL = urlDatabase[shortURL]
-  //console.log(req.params)
-  //console.log(req.params.shortURL)
-  //console.log(urlDatabase[shortURL])
   res.redirect(longURL);
 });
 //
@@ -38,7 +48,7 @@ app.post("/urls", (req, res) => {
   const newLongURL = req.body.longURL;
   //console.log(newLongURL) //longURL input from browser
   urlDatabase[newShortURL] = newLongURL; //set input url to new shortURL key in database
-  console.log(urlDatabase);
+  //console.log(urlDatabase);
   //res.send("Ok");  //=> tell browser to go to new page
   res.redirect(`/urls/${newShortURL}`);
 });
@@ -71,27 +81,6 @@ app.get("/urls.json", (req, res) => {
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
-
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
-
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
-
-
-
-// app.post("/urls", (req, res) => {
-//   const newShortURL = generateRandomString(6);
-//   //console.log(newShortURL); //random short URL generated
-//   const newLongURL = req.body.longURL;
-//   //console.log(newLongURL) //longURL input from browser
-//   urlDatabase[generateRandomString(6)] = newLongURL; //set input url to new shortURL key in database
-//   console.log(urlDatabase);
-//   //res.send("Ok");  //=> tell browser to go to new page
-//   res.redirect("/urls/:newShortURL");
-// });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
