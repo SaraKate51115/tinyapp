@@ -35,14 +35,12 @@ const editURL = (url, shortURL) => {
 };
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// app.get("/urls", (req, res) => {
-//   const templateVars = {
-//     username: req.cookies['username'],
-//   };
-  
-//   res.render('urls_index', templateVars); //===> display in tempate?
-// });
-//~~~~~~~~~~~~~???????
+app.post("/logout", (req, res) => {
+  //console.log()
+  res.clearCookie('username');
+  res.redirect('/urls');
+});
+
 app.post("/login", (req, res) => {
   //console.log(req.body, req.params);
   res.cookie('username', req.body.username);
