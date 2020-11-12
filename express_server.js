@@ -23,12 +23,28 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-const deleteURL = (url) => {
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const deleteURL = (url) => { 
   delete urlDatabase[url];
 };
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const editURL = (url, shortURL) => {
+  urlDatabase[shortURL] = url;
+};
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+app.post("/urls/:shortURL/edit", (req, res) => {
+  console.log("request to edit from myURLs page: ", req.params.shortURL)
+  const shortURL = req.params.shortURL;
+  //deleteURL(req.params.shortURL);
+  res.redirect(`/urls/${shortURL}`);
+});
+
+app.post("/urls/:shortURL", (req, res) => {
+  console.log("request to edit: ", req.body, req.params.shortURL)
+  editURL(req.body.longURL, req.params.shortURL)
+  res.redirect("/urls");
+});
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   console.log("request to delete: ", req.params.shortURL)
@@ -41,18 +57,14 @@ app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[shortURL]
   res.redirect(longURL);
 });
-//
+
+
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString(6);
-  //console.log(newShortURL); //random short URL generated
   const newLongURL = req.body.longURL;
-  //console.log(newLongURL) //longURL input from browser
-  urlDatabase[newShortURL] = newLongURL; //set input url to new shortURL key in database
-  //console.log(urlDatabase);
-  //res.send("Ok");  //=> tell browser to go to new page
+  urlDatabase[newShortURL] = newLongURL; 
   res.redirect(`/urls/${newShortURL}`);
 });
-
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
@@ -60,7 +72,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
-  const templateVars = {shortURL, longURL: urlDatabase[shortURL]}; //chnageged to new
+  const templateVars = {shortURL, longURL: urlDatabase[shortURL]};
   res.render("urls_show", templateVars);
 });
 
