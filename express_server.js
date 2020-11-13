@@ -17,6 +17,8 @@ const generateRandomString = function (length) {
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const users = {};
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -32,6 +34,30 @@ const editURL = (url, shortURL) => {
   urlDatabase[shortURL] = url;
 };
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+app.post('/register', (req, res) => {
+  console.log('hi')
+  console.log(req.body)
+  //add new user object to global user obj
+  const newUserID = generateRandomString(6); //createRandomID
+  //users.id =  newUserID //set ID to ID key
+  users[newUserID] = {id: newUserID, email: '', password: ''};
+  users[newUserID]['email'] = req.body.email;
+  users[newUserID]['password'] = req.body.password;
+  console.log(users);
+  res.cookie('user_id', `${newUserID}`);
+  res.redirect('/urls');
+});
+
+// const newShortURL = generateRandomString(6);
+//   const newLongURL = req.body.longURL;
+//   urlDatabase[newShortURL] = newLongURL; 
+
+// //Register the user:
+app.get("/register", (req, res) => {
+  res.render("register")
+  //res.send("register"); //~~~~~~~~
+});
 
 app.post("/urls/:shortURL/edit", (req, res) => {
   console.log("request to edit from myURLs page: ", req.params.shortURL)
