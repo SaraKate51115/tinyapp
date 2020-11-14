@@ -5,6 +5,8 @@ const bodyParser = require("body-parser");
 
 const cookieParser = require('cookie-parser');
 
+
+console.log("THIS IS ONLY FOR TESTING")
 //Function to generate random userID
 const generateRandomString = function (length) {
   const chars =  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -23,8 +25,6 @@ app.set("view engine", "ejs");
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const users = {};
 
-const users = {};
-
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -39,14 +39,25 @@ const editURL = (url, shortURL) => {
   urlDatabase[shortURL] = url;
 };
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-REGISTER:
-app.post('/register', (req, res) => {
-  res.cookie('user_id', req.body['user_id'])
+
+// //Register the user:
+app.get("/register", (req, res) => {
+  let templateVars = {currentUser: undefined}
+  res.render("register", templateVars);
 });
 
-app.get('/register', (req, res) => {
-  //res.send('hi')
-  res.render('register')
+
+app.post('/register', (req, res) => {
+  const newUserID = generateRandomString(6); //createRandomID
+  //users.id =  newUserID //set ID to ID key
+  let temp = {
+    id: newUserID,
+    email: req.body.email,
+    password: req.body.password
+  };
+  users[newUserID] = temp;
+  res.cookie('user_id', users[newUserID]);
+  res.redirect('/urls');
 });
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,31 +79,6 @@ app.post("/login", (req, res) => {
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //UP TO HERE ON BRANCH MASTER
-
-app.post('/register', (req, res) => {
-  console.log('hi')
-  const newUserID = generateRandomString(6); //createRandomID
-  //users.id =  newUserID //set ID to ID key
-  users[newUserID] = {id: newUserID, email: '', password: ''};
-  users[newUserID]['email'] = req.body.email;
-  users[newUserID]['password'] = req.body.password;
-
-  res.cookie('user_id', `${newUserID}`);
-
-  const user = req.cookies.user_id; 
-  console.log(user)
-
-  res.redirect('/urls');
-});
-
-// //Register the user:
-app.get("/register", (req, res) => {
-
-  console.log(req.cookies)
-  const templateVars = req.cookies
-  console.log('hi:' + templateVars['user_id'])
-  res.render("register", templateVars);
-});
 
 app.post("/urls/:shortURL/edit", (req, res) => {
   console.log("request to edit from myURLs page: ", req.params.shortURL)
@@ -128,10 +114,13 @@ app.post("/urls", (req, res) => {
 
 //=====>
 app.get("/urls/new", (req, res) => {
+  const user = req.cookies['user_id'];
+  console.log(user)
   const templateVars = {
     username: req.cookies['username'],
-    //userID: req.cookies['user_id'],
+    currentUser: users[user]
   }
+  console.log(templateVars)
   res.render("urls_new", templateVars);
 });
 
@@ -148,11 +137,9 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //=====>
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase,
-    username: req.cookies['username'],
-    //userID: req.cookies['user_id'],
-   };
-   console.log(templateVars)
+  const templateVars = { urls: urlDatabase, currentUser: req.cookies['user_id']};
+  console.log("TESTING ");
+  console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 

@@ -9,9 +9,10 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         
-       
-            <% if (username) { %><p>Logged in as: </p>
-              <%= username %> 
+       <!--currentUser was set as username -->
+            <% if(currentUser) { %>
+            
+              <p>Logged in as: <%= currentUser.email %></p>
               <!---Here-->
               <form class="form-inline" action="/register" method="POST">
                 <div class="form-group mx-sm-3 mb-2">
