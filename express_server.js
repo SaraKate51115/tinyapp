@@ -31,16 +31,21 @@ const urlDatabase = {
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//DATA-HELPER FUNCTIONS:
+const emailLookup = () => {
+  //if(users[newUserID][email])
+};
+
 const deleteURL = (url) => { 
   delete urlDatabase[url];
 };
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 const editURL = (url, shortURL) => {
   urlDatabase[shortURL] = url;
 };
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//REGISTER USER:
 
-// //Register the user:
 app.get("/register", (req, res) => {
   let templateVars = {currentUser: undefined}
   res.render("register", templateVars);
@@ -55,7 +60,29 @@ app.post('/register', (req, res) => {
     email: req.body.email,
     password: req.body.password
   };
+  
+//----------->
+  if (temp['password'] === '' || temp['email'] === '') {
+    console.log('empty')
+    return res.status(404).send('Please enter an email and password.');
+  }
+
+//Check if user email already exists:
+//TO DO: CREATE AN EMAIL LOOKUP HELPER FUNCTION
+
+  let foundUser;
+  for (const id in users) {
+    if (users[id]['email'] === temp['email']) {
+      foundUser = users[id];
+      console.log('FOUND: ' + foundUser)
+      return res.status(400).send('Email already registered.');
+    }
+  }
+
   users[newUserID] = temp;
+  // console.log('Users***' + users[newUserID]['id'])
+  // console.log('Temp***' + temp['id'])
+
   res.cookie('user_id', users[newUserID]);
   res.redirect('/urls');
 });
