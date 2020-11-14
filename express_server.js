@@ -36,19 +36,16 @@ const editURL = (url, shortURL) => {
   urlDatabase[shortURL] = url;
 };
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//REGISTER:
-// app.post('/register', (req, res) => {
-//   res.cookie('user_id', req.body['user_id'])
-// });
+REGISTER:
+app.post('/register', (req, res) => {
+  res.cookie('user_id', req.body['user_id'])
+});
 
-// app.get('/register', (req, res) => {
-//   //res.send('hi')
-//   res.render('register')
-// });
+app.get('/register', (req, res) => {
+  //res.send('hi')
+  res.render('register')
+});
 
-// app.post('/register', (req, res) => {
-//   //res.render('register')
-// });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //LOGIN/LOGOUT/USERNAME:
 
