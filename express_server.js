@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
 
 //implementing function to simulate generating a "unique" shortURL
 const generateRandomString = function (length) {
@@ -14,6 +15,7 @@ const generateRandomString = function (length) {
   return result;
 };
 
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
@@ -37,32 +39,32 @@ const editURL = (url, shortURL) => {
 
 app.post('/register', (req, res) => {
   console.log('hi')
-  console.log(req.body)
-  //add new user object to global user obj
   const newUserID = generateRandomString(6); //createRandomID
   //users.id =  newUserID //set ID to ID key
   users[newUserID] = {id: newUserID, email: '', password: ''};
   users[newUserID]['email'] = req.body.email;
   users[newUserID]['password'] = req.body.password;
-  console.log(users);
+
   res.cookie('user_id', `${newUserID}`);
+
+  const user = req.cookies.user_id; 
+  console.log(user)
+
   res.redirect('/urls');
 });
 
-// const newShortURL = generateRandomString(6);
-//   const newLongURL = req.body.longURL;
-//   urlDatabase[newShortURL] = newLongURL; 
-
 // //Register the user:
 app.get("/register", (req, res) => {
-  res.render("register")
-  //res.send("register"); //~~~~~~~~
+
+  console.log(req.cookies)
+  const templateVars = req.cookies
+  console.log('hi:' + templateVars['user_id'])
+  res.render("register", templateVars);
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
   console.log("request to edit from myURLs page: ", req.params.shortURL)
   const shortURL = req.params.shortURL;
-  //deleteURL(req.params.shortURL);
   res.redirect(`/urls/${shortURL}`);
 });
 
