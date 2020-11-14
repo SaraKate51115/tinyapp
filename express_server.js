@@ -2,7 +2,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
-const cookieParser = require('cookie-parser')
+
+const cookieParser = require('cookie-parser');
 
 //Function to generate random userID
 const generateRandomString = function (length) {
@@ -19,6 +20,8 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const users = {};
 
 const users = {};
 
@@ -65,6 +68,31 @@ app.post("/login", (req, res) => {
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //UP TO HERE ON BRANCH MASTER
+
+app.post('/register', (req, res) => {
+  console.log('hi')
+  const newUserID = generateRandomString(6); //createRandomID
+  //users.id =  newUserID //set ID to ID key
+  users[newUserID] = {id: newUserID, email: '', password: ''};
+  users[newUserID]['email'] = req.body.email;
+  users[newUserID]['password'] = req.body.password;
+
+  res.cookie('user_id', `${newUserID}`);
+
+  const user = req.cookies.user_id; 
+  console.log(user)
+
+  res.redirect('/urls');
+});
+
+// //Register the user:
+app.get("/register", (req, res) => {
+
+  console.log(req.cookies)
+  const templateVars = req.cookies
+  console.log('hi:' + templateVars['user_id'])
+  res.render("register", templateVars);
+});
 
 app.post("/urls/:shortURL/edit", (req, res) => {
   console.log("request to edit from myURLs page: ", req.params.shortURL)
