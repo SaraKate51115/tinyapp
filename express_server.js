@@ -97,7 +97,7 @@ app.get('/login', (req, res) => {
 app.post('/logout', (req, res) => {
   //console.log()
   res.clearCookie('username');
-  //res.clearCookie('user_id')
+  res.clearCookie('user_id')
   res.redirect('/urls');
 });
 
@@ -161,7 +161,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {shortURL, 
     longURL: urlDatabase[shortURL],
     username: req.cookies['username'],
-    //userID: req.cookies['user_id'],
+    //currentUser: undefined, //*********************Left off here */
   };
   res.render("urls_show", templateVars);
 });

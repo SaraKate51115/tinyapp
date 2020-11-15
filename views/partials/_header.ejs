@@ -8,30 +8,23 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        
-       <!--currentUser was set as username -->
-            <% if(currentUser) { %>
-            
-              <p>Logged in as: <%= currentUser.email %></p>
-              <!---Here-->
-              <form class="form-inline" action="/register" method="POST">
-                <div class="form-group mx-sm-3 mb-2">
-                  <button type="submit" class="btn btn-outline-dark">!!!!Logout</button>
-                </div>
-              </form>
-              <% } else { %> 
-                <!---Here-->
-                <form class="form-inline" action="/register" method="POST">
-                  <div class="form-group mx-sm-3 mb-2">
-                    <input class="form-control" type="text" name="username" placeholder="username" style="width: 300px; margin: 1em"> 
-                    <button type="submit" class="btn btn-outline-dark">Login</button>
-                  </div>
-                </form> 
-              <% } %>
-          </div>
-        </form>
-        
-      </div>
+       
+       <!-- display a "Register" link (pointing to the registration page) and a "Login" link (pointing to the login page) for users that are not logged in -->
+       <div>
+        <% if(currentUser) { %>
+          <form class="form-inline" action="/logout" method="POST">
+            <div class="form-group mx-sm-3 mb-2">
+              <button type="submit" class="btn btn-outline-dark">!!!!Logout</button>
+            </div>
+          </form>
+          <% } else { %>
+            <div>
+              <a class="nav-item nav-link" href="/register">Register Here</a>
+              <a class="nav-item nav-link" href="/login">Login Here</a>
+            </div> 
+          <% } %>
+       </div>
+      </div>  
     </div>
   </nav>
 </header> 
