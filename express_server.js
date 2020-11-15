@@ -89,15 +89,19 @@ app.post('/register', (req, res) => {
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //LOGIN/LOGOUT/USERNAME:
+app.get('/login', (req, res) => {
+  let templateVars = {currentUser: undefined}
+  res.render('login', templateVars);
+});
 
-app.post("/logout", (req, res) => {
+app.post('/logout', (req, res) => {
   //console.log()
   res.clearCookie('username');
   //res.clearCookie('user_id')
   res.redirect('/urls');
 });
 
-app.post("/login", (req, res) => {
+app.post('/login', (req, res) => {
   //console.log(req.body, req.params);
   res.cookie('username', req.body.username);
   //console.log(req.body['username'])
