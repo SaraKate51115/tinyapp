@@ -34,6 +34,7 @@ const urlDatabase = {
 //DATA-HELPER FUNCTIONS:
 const emailLookup = () => {
   //if(users[newUserID][email])
+  
 };
 
 const deleteURL = (url) => { 
@@ -60,8 +61,7 @@ app.post('/register', (req, res) => {
     email: req.body.email,
     password: req.body.password
   };
-  
-//----------->
+ 
   if (temp['password'] === '' || temp['email'] === '') {
     console.log('empty')
     return res.status(404).send('Please enter an email and password.');
@@ -74,42 +74,59 @@ app.post('/register', (req, res) => {
   for (const id in users) {
     if (users[id]['email'] === temp['email']) {
       foundUser = users[id];
-      console.log('FOUND: ' + foundUser)
+      //console.log('FOUND: ' + foundUser)
       return res.status(400).send('Email already registered.');
     }
   }
 
   users[newUserID] = temp;
-  // console.log('Users***' + users[newUserID]['id'])
-  // console.log('Temp***' + temp['id'])
 
   res.cookie('user_id', users[newUserID]);
   res.redirect('/urls');
 });
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//LOGIN/LOGOUT/USERNAME:
+//LOGIN/LOGOUT:
+
 app.get('/login', (req, res) => {
   let templateVars = {currentUser: undefined}
   res.render('login', templateVars);
 });
 
 app.post('/logout', (req, res) => {
-  //console.log()
-  res.clearCookie('username');
   res.clearCookie('user_id')
   res.redirect('/urls');
 });
 
 app.post('/login', (req, res) => {
-  //console.log(req.body, req.params);
-  res.cookie('username', req.body.username);
-  //console.log(req.body['username'])
+  const email = req.body.email;
+  const password = req.body.password;
+
+  if (!password || !email) {
+    return res.status(400).send('Please enter an email and password');
+  }
+
+  let foundUser;
+  for (const id in users) {
+    //console.log("USERS EMAIL FOUND" + users[id]['email'])
+    //console.log("EMAIL FROM LOGIN ROUTE: " + email)
+
+    if (users[id]['email'] === email) {
+      foundUser = users[id]['id'];
+      if (users[id]['password'] !== password) {
+       return res.status(403).send('1: User or password not found.');
+      }
+    } else {
+      return res.status(403).send('2: User or password not found.');
+    }
+  };
+
+
+  res.cookie('user_id', foundUser);
   res.redirect('/urls');
 });
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//UP TO HERE ON BRANCH MASTER
 
 app.post("/urls/:shortURL/edit", (req, res) => {
   console.log("request to edit from myURLs page: ", req.params.shortURL)
@@ -148,8 +165,7 @@ app.get("/urls/new", (req, res) => {
   const user = req.cookies['user_id'];
   console.log(user)
   const templateVars = {
-    username: req.cookies['username'],
-    currentUser: users[user]
+    currentUser: req.cookies['user_id'],
   }
   console.log(templateVars)
   res.render("urls_new", templateVars);
@@ -158,10 +174,10 @@ app.get("/urls/new", (req, res) => {
 //=====>
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
+  const user = req.cookies['user_id'];
   const templateVars = {shortURL, 
     longURL: urlDatabase[shortURL],
-    username: req.cookies['username'],
-    //currentUser: undefined, //*********************Left off here */
+    currentUser: req.cookies['user_id'],
   };
   res.render("urls_show", templateVars);
 });
@@ -169,8 +185,8 @@ app.get("/urls/:shortURL", (req, res) => {
 //=====>
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase, currentUser: req.cookies['user_id']};
-  console.log("TESTING ");
-  console.log(templateVars);
+  // console.log("TESTING ");
+  // console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 
