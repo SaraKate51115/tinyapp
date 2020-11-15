@@ -33,7 +33,6 @@ const urlDatabase = {
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //DATA-HELPER FUNCTIONS:
 const emailLookup = () => {
-  //if(users[newUserID][email])
   
 };
 
@@ -93,10 +92,12 @@ app.get('/login', (req, res) => {
   res.render('login', templateVars);
 });
 
+
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id')
   res.redirect('/urls');
 });
+
 
 app.post('/login', (req, res) => {
   const email = req.body.email;
@@ -108,8 +109,6 @@ app.post('/login', (req, res) => {
 
   let foundUser;
   for (const id in users) {
-    //console.log("USERS EMAIL FOUND" + users[id]['email'])
-    //console.log("EMAIL FROM LOGIN ROUTE: " + email)
 
     if (users[id]['email'] === email) {
       foundUser = users[id]['id'];
@@ -121,12 +120,11 @@ app.post('/login', (req, res) => {
     }
   };
 
-
   res.cookie('user_id', foundUser);
   res.redirect('/urls');
 });
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 app.post("/urls/:shortURL/edit", (req, res) => {
   console.log("request to edit from myURLs page: ", req.params.shortURL)
@@ -134,11 +132,13 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
+
 app.post("/urls/:shortURL", (req, res) => {
   console.log("request to edit: ", req.body, req.params.shortURL)
   editURL(req.body.longURL, req.params.shortURL)
   res.redirect("/urls");
 });
+
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   console.log("request to delete: ", req.params.shortURL)
@@ -146,61 +146,102 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+//CHECK THAT REDIRECT IS WORKING....
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
-  const longURL = urlDatabase[shortURL]
+  console.log('111: ' + Object.keys(req.params))
+  console.log('2222:   ' + Object.keys(urlDatabase))
+  const longURL =  urlDatabase[shortURL]
   res.redirect(longURL);
 });
 
 
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString(6);
-  const newLongURL = req.body.longURL;
-  urlDatabase[newShortURL] = newLongURL; 
+  const newLongURL = req.body['longURL']
+  console.log("CL: " + req.body['longURL'] + 'NEW:   ' + newLongURL)
+  
+  urlDatabase[newShortURL] = {
+    longURL: newLongURL,
+    userID: req.cookies['user_id']['id'],
+  }
+  
   res.redirect(`/urls/${newShortURL}`);
 });
 
-//=====>
+
 app.get("/urls/new", (req, res) => {
   const user = req.cookies['user_id'];
-  console.log(user)
+  
+  console.log('AND HEEERE:    ' + Object.keys(urlDatabase))
+
+  // let tmp = Object.entries(urlDatabase);
+  // console.log('TMP: ' + tmp)
+
+  // let results = '';
+  // for(const key of tmp) {
+  //   for (const item of key) {
+  //     console.log('ITEM: ' + item)
+  //     if(typeof item === typeof {}) {
+  //       console.log('===> ' + item)
+  //       console.log('=======> ' + item['longURL'])
+  //       results += item['longURL']
+  //     }
+  //   }
+  // }
+  // const longURL = results
+  // console.log('RESULTS: ' + results)
+  
+  if (!user) {
+    res.redirect('/login')
+  }
+
   const templateVars = {
     currentUser: req.cookies['user_id'],
   }
-  console.log(templateVars)
+
   res.render("urls_new", templateVars);
 });
 
-//=====>
+
 app.get("/urls/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL
+  const shortURL = req.params.shortURL;
+  const newLongURL = urlDatabase[shortURL]['longURL']
   const user = req.cookies['user_id'];
+  
   const templateVars = {shortURL, 
-    longURL: urlDatabase[shortURL],
+    longURL: newLongURL, //
     currentUser: req.cookies['user_id'],
   };
+
   res.render("urls_show", templateVars);
 });
 
-//=====>
+
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, currentUser: req.cookies['user_id']};
-  // console.log("TESTING ");
-  // console.log(templateVars);
+  const templateVars = { 
+    urls: urlDatabase, 
+    currentUser: req.cookies['user_id'],
+  };
+  
   res.render("urls_index", templateVars);
 });
+
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
