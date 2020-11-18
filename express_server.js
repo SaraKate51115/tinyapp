@@ -25,15 +25,29 @@ app.set("view engine", "ejs");
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 const users = {};
 
+// const urlDatabase = {
+//   "b2xVn2": "http://www.lighthouselabs.ca",
+//   "9sm5xK": "http://www.google.com"
+// };
+
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //DATA-HELPER FUNCTIONS:
-const urlsForUser = (id) => {
-  
+const urlsForUser = (userID) => {
+  let results = {};
+  for (let shortURL in urlDatabase) {
+    const url = urlDatabase[shortURL];
+    if (userID === url.userID) {
+      results[shortURL] = url;
+    }
+  }
+
+  return results;
 }
 
 const emailLookup = () => {
@@ -45,7 +59,7 @@ const deleteURL = (url) => {
 };
 
 const editURL = (url, shortURL) => {
-  urlDatabase[shortURL] = url;
+  urlDatabase[shortURL].longURL = url;
 };
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //REGISTER USER:
@@ -84,7 +98,7 @@ app.post('/register', (req, res) => {
 
   users[newUserID] = temp;
 
-  res.cookie('user_id', users[newUserID]);
+  res.cookie('user_id', newUserID);
   res.redirect('/urls');
 });
 
@@ -130,15 +144,23 @@ console.log(foundUser)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-app.post("/urls/:shortURL/edit", (req, res) => {
-  console.log("request to edit from myURLs page: ", req.params.shortURL)
-  const shortURL = req.params.shortURL;
-  res.redirect(`/urls/${shortURL}`);
-});
+// app.post("/urls/:shortURL/edit", (req, res) => {
+//   console.log("request to edit from myURLs page: ", req.params.shortURL)
+//   const shortURL = req.params.shortURL;
+//   res.redirect(`/urls/${shortURL}`);
+// });
 
 
 app.post("/urls/:shortURL", (req, res) => {
   console.log("request to edit: ", req.body, req.params.shortURL)
+
+  const userID = req.cookies.user_id;
+  const url = urlDatabase[req.params.shortURL];
+
+  if (userID !== url.userID) {
+    return res.status(401).send("Error, cannot edit URL that does not belong to you");
+  }
+
   editURL(req.body.longURL, req.params.shortURL)
   res.redirect("/urls");
 });
@@ -146,6 +168,13 @@ app.post("/urls/:shortURL", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   console.log("request to delete: ", req.params.shortURL)
+  const userID = req.cookies.user_id;
+  const url = urlDatabase[req.params.shortURL];
+
+  if (userID !== url.userID) {
+    return res.status(401).send("Error, cannot delete URL that does not belong to you");
+  }
+
   deleteURL(req.params.shortURL);
   res.redirect("/urls");
 });
@@ -155,7 +184,7 @@ app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL
   console.log('111: ' + Object.keys(req.params))
   console.log('2222:   ' + Object.keys(urlDatabase))
-  const longURL =  urlDatabase[shortURL]
+  const longURL =  urlDatabase[shortURL].longURL
   res.redirect(longURL);
 });
 
@@ -167,8 +196,9 @@ app.post("/urls", (req, res) => {
   
   urlDatabase[newShortURL] = {
     longURL: newLongURL,
-    userID: req.cookies['user_id']['id'],
+    userID: req.cookies['user_id'],
   }
+  console.log(urlDatabase)
   
   res.redirect(`/urls/${newShortURL}`);
 });
@@ -212,6 +242,15 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const newLongURL = urlDatabase[shortURL]['longURL']
   const user = req.cookies['user_id'];
+  const url = urlDatabase[shortURL];
+
+  if (!user) {
+    return res.redirect("/login");
+  }
+
+  if (user !== url.userID) {
+    return res.status(401).send("Error, can only view URLs you have created.")
+  }
   
   const templateVars = {shortURL, 
     longURL: newLongURL, //
@@ -224,7 +263,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const templateVars = { 
-    urls: urlDatabase, 
+    urls: urlsForUser(req.cookies.user_id), 
     currentUser: users[req.cookies.user_id],
   };
   
