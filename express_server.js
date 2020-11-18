@@ -32,6 +32,10 @@ const urlDatabase = {
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //DATA-HELPER FUNCTIONS:
+const urlsForUser = (id) => {
+  
+}
+
 const emailLookup = () => {
   
 };
@@ -119,7 +123,7 @@ app.post('/login', (req, res) => {
       return res.status(403).send('2: User or password not found.');
     }
   };
-
+console.log(foundUser)
   res.cookie('user_id', foundUser);
   res.redirect('/urls');
 });
@@ -221,7 +225,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/urls", (req, res) => {
   const templateVars = { 
     urls: urlDatabase, 
-    currentUser: req.cookies['user_id'],
+    currentUser: users[req.cookies.user_id],
   };
   
   res.render("urls_index", templateVars);
